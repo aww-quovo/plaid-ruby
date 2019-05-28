@@ -6,12 +6,12 @@ require_relative '../lib/plaid'
 STUB_API = !ENV['STUB_API'].nil?
 
 if STUB_API
-  require 'vcr'
+  #require 'vcr'
 
-  VCR.configure do |config|
-    config.cassette_library_dir = 'test/vcr_cassettes'
-    config.hook_into :faraday
-  end
+  # VCR.configure do |config|
+  #   config.cassette_library_dir = 'test/vcr_cassettes'
+  #   config.hook_into :faraday
+  # end
 end
 
 # We support "all" and "none" here. "once" and "new_episodes" won't work due to
@@ -51,10 +51,7 @@ class PlaidTest < MiniTest::Test
                   transactions_end_date: nil,
                   webhook: nil,
                   options: nil)
-    @item = client.sandbox.public_token.create(
-      institution_id: institution_id,
-    )
-    @public_token_response = client.sandbox.sandbox_public_token.create(
+    public_token_response = client.sandbox.sandbox_public_token.create(
       institution_id: institution_id,
       initial_products: initial_products,
       transactions_start_date: transactions_start_date,
@@ -82,11 +79,12 @@ class PlaidTest < MiniTest::Test
     create_client
 
     if STUB_API
-      cassette = "#{self.class}_#{name}"
-      VCR.use_cassette(cassette, record: RECORD_MODE,
-                                 match_requests_on: %i[method uri body]) do
-        yield
-      end
+      # cassette = "#{self.class}_#{name}"
+      # VCR.use_cassette(cassette, record: RECORD_MODE,
+      #                            match_requests_on: %i[method uri body]) do
+      #   yield
+      # end
+      yield
     else
       yield
     end
