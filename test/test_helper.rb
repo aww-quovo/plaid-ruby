@@ -3,15 +3,15 @@ require 'minitest/around/unit'
 
 require_relative '../lib/plaid'
 
-STUB_API = !ENV['STUB_API'].nil?
+STUB_API = true
 
 if STUB_API
-  #require 'vcr'
+  require 'vcr'
 
-  # VCR.configure do |config|
-  #   config.cassette_library_dir = 'test/vcr_cassettes'
-  #   config.hook_into :faraday
-  # end
+  VCR.configure do |config|
+    config.cassette_library_dir = 'test/vcr_cassettes'
+    config.hook_into :faraday
+  end
 end
 
 # We support "all" and "none" here. "once" and "new_episodes" won't work due to
@@ -67,6 +67,8 @@ class PlaidTest < MiniTest::Test
 
     @access_token = exchange_token_response.access_token
     refute_empty(@access_token)
+
+    @item = client.item.get(@access_token)
   end
 
   # If create_item was used, remove the item
@@ -79,11 +81,11 @@ class PlaidTest < MiniTest::Test
     create_client
 
     if STUB_API
-      # cassette = "#{self.class}_#{name}"
-      # VCR.use_cassette(cassette, record: RECORD_MODE,
-      #                            match_requests_on: %i[method uri body]) do
-      #   yield
-      # end
+      cassette = "#{self.class}_#{name}"
+      VCR.use_cassette(cassette, record: RECORD_MODE,
+                                 match_requests_on: %i[method uri body]) do
+        yield
+      end
       yield
     else
       yield
